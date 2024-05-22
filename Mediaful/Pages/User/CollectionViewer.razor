@@ -1,0 +1,102 @@
+﻿@page "/collection"
+@page "/collection/{UserId}"
+@using Mediaful.Data.Services;
+@using Mediaful.Shared.Enum;
+@using Mediaful.Data.Models;
+@using Microsoft.Extensions.Localization;
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IAuthService AuthService
+@inject IDatabaseService DatabaseService
+@inject NavigationManager NavManager
+
+<PageTitle>@header - Mediaful</PageTitle>
+
+<div>
+    <h1>@header</h1>
+    <MudTable Class="mt-6" Items="WatchData" Breakpoint="Breakpoint.Sm" Hover="true" SortLabel="Sort By" 
+            EditTrigger="TableEditTrigger.EditButton" CanCancelEdit="true" RowEditPreview="BackupItem" RowEditCancel="ResetEdit"
+            ReadOnly="@(!viewingOwnCollection)" RowEditCommit="CommitEdit" Filter="new Func<WatchData,bool>(Search)">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Collection</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<WatchData, object>(x=>x.Title)">Title</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<WatchData, object>(x=>x.IsTvShow)">Type</MudTableSortLabel></MudTh>
+            <MudTh>Title</MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<WatchData, object>(x=>x.TimesWatched)">Times Watched</MudTableSortLabel></MudTh>
+            @if (viewingOwnCollection)
+            {
+                <MudTh>Action</MudTh>
+            }
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Title">@context.Title</MudTd>
+            <MudTd DataLabel="Type">@(context.IsTvShow ? "TV Show" : "Movie")</MudTd>
+            <MudTd DataLabel="Status">
+                 <MudChipSet ReadOnly >
+                    @if (context.Status != (int)StatusEnum.Undefined)
+                    {
+                        <WatchTag Type=TagTypeEnum.WatchStatus Value="context.Status" />
+                    }
+                    @if (context.Rating != (int)RatingEnum.Undefined)
+                    {
+                        <WatchTag Type=TagTypeEnum.Rating Value="context.Rating" />
+                    }
+                    @if (context.IsFavorite)
+                    {
+                        <WatchTag Type=TagTypeEnum.Favorite />
+                    }
+                </MudChipSet>
+            </MudTd>
+            <MudTd DataLabel="Times Watched">
+                <WatchTag Type=TagTypeEnum.TimesWatched Value="context.TimesWatched" />
+            </MudTd>
+            @if (viewingOwnCollection)
+            {
+                <MudTd DataLabel="Action">
+                    <MudIconButton id="@($"delete-{context.WatchDataId}")" Title="Delete" OnClick="(() => Delete(context.WatchDataId))" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" />
+                </MudTd>
+            }
+        </RowTemplate>
+        <RowEditingTemplate>
+            <MudTd DataLabel="Title">
+                <MudTextField @bind-Value="@context.Title" Required />
+            </MudTd>
+            <MudTd>@(context.IsTvShow ? "TV Show" : "Movie")</MudTd>
+                <MudTd DataLabel="Status">
+                    <MudGrid Spacing="10" Justify="Justify.Center">
+                        <MudItem>
+                            <MudChipSet Filter="true" @bind-SelectedChip="statusChip">
+                                <WatchTag Default="@(context.Status == (int)StatusEnum.Watchlist)" Type=TagTypeEnum.WatchStatus Value="(int)StatusEnum.Watchlist" />
+                                <WatchTag Default="@(context.Status == (int)StatusEnum.Watching)" Type=TagTypeEnum.WatchStatus Value="(int)StatusEnum.Watching" />
+                                <WatchTag Default="@(context.Status == (int)StatusEnum.Watched)" Type=TagTypeEnum.WatchStatus Value="(int)StatusEnum.Watched" />
+                            </MudChipSet>
+                        </MudItem>
+                        <MudItem>
+                            <MudChipSet Filter="true" @bind-SelectedChip="ratingChip">
+                                <WatchTag Default="@(context.Rating == (int)RatingEnum.Liked)" Type=TagTypeEnum.Rating Value="(int)RatingEnum.Liked" />
+                                <WatchTag Default="@(context.Rating == (int)RatingEnum.Disliked)" Type=TagTypeEnum.Rating Value="(int)RatingEnum.Disliked" />
+                            </MudChipSet>
+                        </MudItem>
+                        <MudItem>
+                            <MudChipSet Filter="true" @bind-SelectedChip="favChip">
+                                <WatchTag Default="@(context.IsFavorite)" Type=TagTypeEnum.Favorite />
+                            </MudChipSet>
+                        </MudItem>
+                    </MudGrid>
+            </MudTd>
+            <MudTd DataLabel="Times Watched">
+                <WatchTag Type=TagTypeEnum.TimesWatched Value="context.TimesWatched" />
+            </MudTd>
+        </RowEditingTemplate>
+            <EditButtonContent Context="button">
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+            </EditButtonContent>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10, 50, 100}" />
+        </PagerContent>
+    </MudTable>
+</div>

@@ -1,0 +1,45 @@
+﻿@using Mediaful.Data.Services;
+@using Microsoft.Extensions.Localization;
+@inject LayoutState LayoutState
+@inject IDatabaseService DatabaseService
+
+<MudDrawer @bind-Open="LayoutState.IsSidebarExpanded" Breakpoint="@Breakpoint.Md" ClipMode="DrawerClipMode.Always" Elevation="1">
+    <MudNavMenu Color="Color.Info">
+        <MudNavLink Href="/" IconColor="Color.Tertiary" Icon="@Icons.Material.Outlined.Home" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+        <MudNavLink Href="/users" IconColor="Color.Tertiary" Icon="@Icons.Material.Outlined.Person" Match="NavLinkMatch.All">Search Users</MudNavLink>
+        <AuthorizeView>
+            <Authorized>
+                <MudNavLink Href="/collection" IconColor="Color.Tertiary" Icon="@Icons.Material.Outlined.Movie" Match="NavLinkMatch.All">My Collection</MudNavLink>
+                <MudNavLink Href="/log" IconColor="Color.Tertiary" Icon="@Icons.Material.Outlined.Add" Match="NavLinkMatch.All">Log Watched Title</MudNavLink>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <MudNavGroup IconColor="Color.Secondary" Icon="@Icons.Material.Outlined.Bolt" Title="Admin" Expanded="true">
+                    <MudNavLink Href="/admin/announcements" IconColor="Color.Secondary" Icon="@Icons.Material.Outlined.Notifications" Match="NavLinkMatch.All">Announcements</MudNavLink>
+                    <MudNavLink Href="/admin/features" IconColor="Color.Secondary" Icon="@Icons.Material.Outlined.FileUpload" Match="NavLinkMatch.All">Manage Features</MudNavLink>
+                    <MudNavLink Href="/admin/reports" IconColor="Color.Secondary" Icon="@Icons.Material.Outlined.NotificationAdd" Match="NavLinkMatch.All">
+                        @if (reports > 0)
+                        {
+                            <MudBadge Content="reports" BadgeClass="report-badge" Color="Color.Error" Origin="Origin.TopRight" Overlap=true>
+                                Notification Reports
+                            </MudBadge>
+                        }
+                        else
+                        {
+                                <span>Notification Reports</span>
+                        }
+                    </MudNavLink>
+                </MudNavGroup>
+            </Authorized>
+        </AuthorizeView>
+    </MudNavMenu>
+    @if (titles.Length > 0 && titles.Length == counts.Length)
+    {
+        <MudSpacer></MudSpacer>
+        <div class="center mb-1">
+            <h3 class="center text-primary">Most watched titles</h3>
+        </div>
+        <MudChart ChartType="ChartType.Pie" Width="150px" Height="150px" InputData="@counts" InputLabels="@titles"></MudChart>
+    }
+</MudDrawer>

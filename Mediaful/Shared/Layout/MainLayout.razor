@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+
+@inject LayoutState LayoutState
+@inject IHttpContextAccessor HttpContextAccessor
+@using Microsoft.Extensions.Localization;
+
+<PageTitle>Mediaful</PageTitle>
+
+<MudThemeProvider IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <TopLayout />
+    <SidebarLayout />
+    <MudMainContent Class="pt-16 pb-16 px-4">
+        <FeatureLayout />
+        <MudContainer Class="mt-6">
+            @Body
+        </MudContainer>
+        <AuthorizeView>
+            <Authorized>
+                <div class="fab">
+                    <MudFab Href="/log" Title="Log Watched Title" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add" />
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </MudMainContent>
+</MudLayout>
+
+

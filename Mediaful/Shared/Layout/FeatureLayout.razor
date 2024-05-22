@@ -1,0 +1,17 @@
+﻿@using Mediaful.Data.Services;
+@using Microsoft.Extensions.Localization;
+@inject IDatabaseService DatabaseService
+
+@if (features != null && features.Count > 0 && currentFeature != null)
+{
+    <MudContainer>
+        <div class="feature-container">
+            <MudContainer style="width: 25%">
+                <img src="@currentFeature.ImgPath" width="100%" height="100%">
+            </MudContainer>
+            <MudContainer Class="pb-2">
+                    @currentFeature.Description
+            </MudContainer>
+        </div>
+    </MudContainer>
+}

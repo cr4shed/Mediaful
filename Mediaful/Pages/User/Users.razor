@@ -1,0 +1,38 @@
+﻿@page "/users"
+@using Mediaful.Data.Models;
+@using Mediaful.Data.Services;
+@inject IAuthService AuthService
+@inject IDatabaseService DatabaseService
+
+<PageTitle>Search Users - Mediaful</PageTitle>
+
+<h1>Search Users</h1>
+<MudTextField T="string" Label="Search" HelperText="Enter a search term to search for users"
+              Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" 
+              ValueChanged=@SearchUsers />
+
+<MudGrid Spacing="3" Justify="Justify.Center" Class="mt-6">
+    @foreach(ApplicationUser user in users)
+    {
+        <MudItem>
+            <a href="/collection/@user.Id">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <span class="user-hover">
+                                <MudAvatar Color="Color.Primary">@user.UserName.ElementAt(0)</MudAvatar>
+                                <span class="ml-2">@user.UserName</span>
+                            </span>
+                        </CardHeaderAvatar>
+                    </MudCardHeader>
+                </MudCard>
+            </a>
+        </MudItem>
+    }
+    <MudItem xs="12">
+        @if (canQueryUsers)
+        {
+            <MudButton Style="width: 100%" Class="mt-6" Variant="Variant.Outlined" Color="Color.Secondary" OnClick="@(async () => await LoadMoreUsers())">Load More</MudButton>
+        }
+    </MudItem>
+</MudGrid>

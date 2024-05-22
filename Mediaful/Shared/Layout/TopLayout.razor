@@ -1,0 +1,48 @@
+﻿@inject LayoutState LayoutState
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.Extensions.Localization;
+@inject NavigationManager NavManager
+
+<MudAppBar Elevation="1">
+    <MudGrid>
+        <MudItem xs="1">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@LayoutState.SidebarToggle" />
+        </MudItem>
+        <MudItem xs="1" lg="1">
+            <a style="display: flex;" href="/" title="Dashboard">
+                <MudImage Height="50" Src="/images/mediaful_logo_main.png" Alt="Mediaful Logo" Class="rounded-lg" />
+            </a>
+        </MudItem>
+        <MudItem xs="6" sm="8" md="8" lg="9">
+
+        </MudItem>
+        <MudItem xs="1">
+            <AuthorizeView>
+                <Authorized>
+                    <div class="col-sm-4" title="User options">
+                        <MudMenu FullWidth="true" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+                            <ActivatorContent>
+                                <div class="pr-8 col-sm-4" title="User options">
+                                    <MudChip Icon="@Icons.Material.Filled.Person" Color="Color.Primary">@user.Identity.Name</MudChip>
+                                </div>
+                            </ActivatorContent>
+                            <ChildContent>
+                                <MudMenuItem OnClick="@(() => NavManager.NavigateTo("/Identity/Account/Manage", true))">
+                                        Preferences
+                                </MudMenuItem>
+                                <MudMenuItem OnClick="@(() => NavManager.NavigateTo("/Identity/Account/Logout", true))">
+                                        Logout
+                                </MudMenuItem>
+                            </ChildContent>
+                        </MudMenu>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => NavManager.NavigateTo("/Identity/Account/Login", true))">
+                        Login
+                    </MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudItem>
+    </MudGrid>
+</MudAppBar>

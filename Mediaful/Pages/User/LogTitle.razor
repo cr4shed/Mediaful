@@ -1,0 +1,93 @@
+﻿@page "/log"
+@using Blazored.FluentValidation
+@using Mediaful.Data.Models;
+@using Mediaful.Data;
+@using Mediaful.Data.Services;
+@using Mediaful.Shared.Enum;
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.Extensions.Localization;
+@inject IAuthService AuthService
+@inject IDatabaseService DatabaseService
+@inject ISnackbar Snackbar
+
+<PageTitle>Log Title - Mediaful</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        @if (isLoading)
+        {
+            <p>Loading</p>
+        }
+        else
+        {
+            <div class="text-primary">
+                <MudGrid>
+                    <MudItem md="10">
+                        <h1>Log Title</h1>
+                        <p class="text-secondary">To begin logging enter a title and optionally add tags to describe your experience!</p>
+                    </MudItem>
+                    <MudItem md="2">
+                        <MudSwitch Label="Share" Disabled="@isUserBanned" @bind-Checked="share" Color="Color.Secondary" />
+                        @if (isUserBanned)
+                        {
+                            <p class="text-secondary">Your account has been suspended from sharing due to abusive comments.</p>
+                        }
+                    </MudItem>
+                </MudGrid>
+
+                <MudForm @ref="form" Class="mt-6" Model="watchData" Validation="@validator.ValidateValue">
+                    <MudGrid Spacing="10" Justify="Justify.Center">
+                        <MudItem>
+                            <MudChipSet Filter="true" @bind-SelectedChip="statusChip">
+                                <WatchTag Disabled="string.IsNullOrEmpty(watchData.Title)" Default="@(watchData.Status == (int)StatusEnum.Watchlist)" Type=TagTypeEnum.WatchStatus Value="(int)StatusEnum.Watchlist" />
+                                <WatchTag Disabled="string.IsNullOrEmpty(watchData.Title)" Default="@(watchData.Status == (int)StatusEnum.Watching)" Type=TagTypeEnum.WatchStatus Value="(int)StatusEnum.Watching" />
+                                <WatchTag Disabled="string.IsNullOrEmpty(watchData.Title)" Default="@(watchData.Status == (int)StatusEnum.Watched)" Type=TagTypeEnum.WatchStatus Value="(int)StatusEnum.Watched" />
+                            </MudChipSet>
+                        </MudItem>
+                        <MudItem>
+                            <MudChipSet Filter="true" @bind-SelectedChip="ratingChip">
+                                <WatchTag Disabled="string.IsNullOrEmpty(watchData.Title)" Default="@(watchData.Rating == (int)RatingEnum.Liked)" Type=TagTypeEnum.Rating Value="(int)RatingEnum.Liked" />
+                                <WatchTag Disabled="string.IsNullOrEmpty(watchData.Title)" Default="@(watchData.Rating == (int)RatingEnum.Disliked)" Type=TagTypeEnum.Rating Value="(int)RatingEnum.Disliked" />
+                            </MudChipSet>
+                        </MudItem>
+                        <MudItem>
+                            <MudChipSet Filter="true" @bind-SelectedChip="favChip">
+                                <WatchTag Disabled="string.IsNullOrEmpty(watchData.Title)" Default="@(watchData.IsFavorite)" Type=TagTypeEnum.Favorite />
+                            </MudChipSet>
+                        </MudItem>
+                    </MudGrid>
+                    <MudGrid Class="mt-6">
+                        <MudItem xs="8">
+                            <MudAutocomplete @ref=autocomplete For="@(() => watchData.Title)" Clearable HelperText="Title of the movie or TV show" HelperTextOnFocus="true" Strict="false" Value="@watchData.Title" ValueChanged="((string val) => OnSelectionChange(val))" CoerceValue="true" Required="true" Label="Title " SearchFunc="SearchAsync" ResetValueOnEmptyText="true" MaxLength="128"/>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudSwitch Label="Are you logging a TV show?" @bind-Checked="watchData.IsTvShow" Color="Color.Secondary" />
+                        </MudItem>
+                        @if (watchData.IsTvShow)
+                        {
+                            <MudItem xs="6">
+                                <div>
+                                    <MudNumericField HelperText="Numeric season number" HelperTextOnFocus="true" @bind-Value="watchData.TvSeason" Label="Season" Variant="Variant.Text" Min="1" Max="999" />
+
+                                    <MudNumericField HelperText="Numeric episode number" HelperTextOnFocus="true" @bind-Value="watchData.TvEpisode" Label="Episode" Variant="Variant.Text" Min="1" Max="999" />
+                                </div>
+                            </MudItem>
+                        }
+                        @if (share)
+                        {
+                            <MudItem xs="12">
+                                <MudTextField Counter="512" Immediate="true" Validation="@(new Func<string, IEnumerable<string>>(ValidateCommentLength))" MaxLength="512" T="string" Label="Comment" Variant="Variant.Outlined" @bind-Text="comment" Lines="3" />
+                            </MudItem>
+                        }
+                        <MudItem xs="12">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await Submit())">Submit</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudForm>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <ErrorUnauthorized />
+    </NotAuthorized>
+</AuthorizeView>

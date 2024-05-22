@@ -1,0 +1,134 @@
+﻿@page "/"
+@using Mediaful.Data.Services;
+@using Mediaful.Data.Models;
+@using Mediaful.Shared.Enum;
+@using Microsoft.Extensions.Localization;
+@inject IAuthService AuthService
+@inject IDatabaseService DatabaseService
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<AuthorizeView>
+    <Authorized>
+        @if (!isLoading)
+        {
+            <h1>What is being watched</h1>
+            if (notifications.Count > 0)
+            {
+                <MudStack>
+                    @foreach (Notification notif in notifications)
+                    {
+                        if (notif.SenderId == 0)
+                        {
+                            <MudCard Class="mt-6">
+                                <MudCardHeader>
+                                    <CardHeaderAvatar>
+                                        <MudAvatar Color="Color.Primary">M</MudAvatar>
+                                    </CardHeaderAvatar>
+                                    <CardHeaderContent>
+                                        @((MarkupString)"<span class=\"notif-system-tag\">[SYSTEM]</span> Mediaful Team")
+                                    </CardHeaderContent>
+                                </MudCardHeader>
+                                <MudCardContent>
+                                    <MudText>
+                                        <span class="word-wrap">
+                                            @notif.Comment
+                                        </span>
+                                    </MudText>
+                                </MudCardContent>
+                            </MudCard>
+                        }
+                        else
+                        {
+                            <MudCard id="@($"notification-{notif.NotificationId}")" Class="mt-6">
+                                <MudCardHeader>
+                                    <CardHeaderAvatar>
+                                        <MudAvatar Color="Color.Secondary">@GetUsername(notif.SenderId)[0]</MudAvatar>
+                                    </CardHeaderAvatar>
+                                    <CardHeaderContent>
+                                        <MudButton OnClick=@(()=> NavManager.NavigateTo($"/collection/{notif.SenderId}"))><MudText>@GetUsername(notif.SenderId)</MudText></MudButton>
+                                    </CardHeaderContent>
+                                    <CardHeaderActions>
+                                        <MudIconButton id="@($"report-{@notif.NotificationId}")" OnClick="(() => Report(notif.NotificationId))" Disabled=@IsReported(notif.NotificationId) Icon="@(IsReported(notif.NotificationId) ? Icons.Material.Filled.Flag : Icons.Material.Outlined.Flag)" Color="Color.Error" />
+                                    </CardHeaderActions>
+                                </MudCardHeader>
+                                <MudCardContent>
+                                    <div>
+                                        <MudText>
+                                            @((MarkupString)GetDefaultMessage(notif))
+                                        </MudText>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(notif.Comment))
+                                    {
+                                        <div class="mt-6 mb-6">
+                                            <MudPaper Outlined="true" class="notif-comment px-4 py-4">
+                                                <MudIcon class="notif-comment-icon" Icon="@Icons.Material.Outlined.Chat" />
+                                                <span class="notif-comment-message word-wrap ml-1">
+                                                    @notif.Comment
+                                                </span>
+                                            </MudPaper>
+
+                                        </div>
+                                    }
+                                    @if (notif.Status != (int)StatusEnum.Undefined || notif.Rating != (int)RatingEnum.Undefined
+                                   || notif.IsFavorite || notif.TimesWatched > 0)
+                                    {
+                                        <MudDivider Class="mt-6 mb-2"></MudDivider>
+                                    }
+                                    <div class="notif-tags">
+                                        @if (notif.Status != (int)StatusEnum.Undefined)
+                                        {
+                                            <WatchTag Type=TagTypeEnum.WatchStatus Value="notif.Status" />
+                                        }
+                                        @if (notif.Rating != (int)RatingEnum.Undefined)
+                                        {
+                                            <WatchTag Type=TagTypeEnum.Rating Value="notif.Rating" />
+                                        }
+                                        @if (notif.IsFavorite)
+                                        {
+                                            <WatchTag Type=TagTypeEnum.Favorite />
+                                        }
+                                        @if (notif.TimesWatched > 0)
+                                        {
+                                            <WatchTag Type=TagTypeEnum.TimesWatched Value="notif.TimesWatched" />
+                                        }
+                                    </div>
+                                    @if (notif.Status != (int)StatusEnum.Undefined || notif.Rating != (int)RatingEnum.Undefined
+                                   || notif.IsFavorite || notif.TimesWatched > 0)
+                                    {
+                                        <MudDivider Class="mt-2"></MudDivider>
+                                    }
+                                </MudCardContent>
+                            </MudCard>
+                        }
+                    }
+                    @if(canQueryNotifications)
+                    {
+                        <MudButton Class="mt-6" Variant="Variant.Outlined" Color="Color.Secondary" OnClick="@(async () => await GetNotifications())">Load More</MudButton>
+                    }
+                </MudStack>
+            }
+            else
+            {
+                <span class="no-notif">Oops! There are no notifications to show!</span>
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        <div class="landing-container">
+        <MudContainer>
+            <div>Mediaful is a social media website created with the goal of providing users with a meaningful way to track and share the entertainment they watch.</div>
+
+            <div class="mt-6">
+                Register an account now!
+            </div>
+            <div class="mt-6">
+                <MudButton Size=Size.Small Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => NavManager.NavigateTo("/Identity/Account/Register", true))">
+                    Register
+                </MudButton>
+            </div>
+        </MudContainer>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>

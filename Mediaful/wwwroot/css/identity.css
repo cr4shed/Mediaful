@@ -1,0 +1,22 @@
+﻿@media (min-width:1281px) {
+    .logo {
+        position: relative !important;
+        left: 160px !important;
+    }
+}
+
+.form-control, .btn {
+    margin-top: 10px;
+}
+
+.btn {
+    margin-bottom: 10px;
+}
+
+.form-label {
+    color: black;
+}
+
+.checkbox .form-label {
+    color: white;
+}

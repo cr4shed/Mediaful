@@ -1,0 +1,54 @@
+﻿@page "/admin/reports"
+@using Blazored.FluentValidation
+@using Mediaful.Data.Models;
+@using Mediaful.Data.Services;
+@using Mediaful.Shared.Enum;
+@using Microsoft.Extensions.Localization;
+@inject IDatabaseService DatabaseService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Notification Reports - Mediaful</PageTitle>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <h1>Notification Reports</h1>
+        <MudTable Class="mt-6" Breakpoint="Breakpoint.Sm" Items="reports" Hover="true" SortLabel="Sort By">
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<NotificationReport, object>(x=>x.ReportId)">Report ID</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<NotificationReport, object>(x=>x.ReporterId)">Reporter ID</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<NotificationReport, object>(x=>x.Status)">Status</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<NotificationReport, object>(x=>x.Notification.Title)">Notification Title</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<NotificationReport, object>(x=>x.Notification.Comment)">Comment</MudTableSortLabel></MudTh>
+                <MudTh>Action</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="rowContext">
+                <MudTd DataLabel="Report ID">@rowContext.ReportId</MudTd>
+                <MudTd DataLabel="Reporter ID">@rowContext.ReporterId</MudTd>
+                <MudTd DataLabel="Status">@(((ReportStatusEnum)rowContext.Status).ToString())</MudTd>
+                <MudTd DataLabel="Comment">@rowContext.Notification.Title</MudTd>
+                <MudTd DataLabel="Comment">
+                    @if (rowContext.Status == (int)ReportStatusEnum.Unsafe)
+                    {
+                        <span>[ COMMENT DELETED ]</span>
+                    }
+                    else
+                    {
+                        @rowContext.Notification.Comment
+                    }
+                </MudTd>
+                <MudTd DataLabel="Action">
+                        <MudIconButton id="@($"disable-{rowContext.ReportId}")" Title="Remove Notifiation and Disable User" OnClick="(() => DeleteAndDisable(rowContext.ReportId))" Icon="@Icons.Material.Outlined.PersonOff" Color="Color.Error" />
+                        <MudIconButton id="@($"unsafe-{rowContext.ReportId}")" Title="Remove Comment" OnClick="(() => SetUnsafe(rowContext.ReportId))" Icon="@Icons.Material.Outlined.NotInterested" Color="Color.Error" />
+                        <MudIconButton id="@($"safe-{rowContext.ReportId}")" Title="Dismiss" OnClick="(() => SetSafe(rowContext.ReportId))" Icon="@Icons.Material.Outlined.CheckCircle" Color="Color.Success" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new int[]{10, 50, 100}" />
+            </PagerContent>
+        </MudTable>
+    </Authorized>
+    <NotAuthorized>
+            <Error404 />
+    </NotAuthorized>
+</AuthorizeView>

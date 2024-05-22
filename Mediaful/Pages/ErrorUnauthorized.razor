@@ -1,0 +1,16 @@
+﻿@inject NavigationManager NavManager
+
+<div class="error-container back-dark">
+    <MudContainer>
+        <h1>Oh no!</h1>
+
+        <div class="mt-6">
+            This page requires an account. Register now!
+        </div>
+        <div class="mt-6">
+            <MudButton Size=Size.Small Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => NavManager.NavigateTo("/Identity/Account/Register", true))">
+                Register
+            </MudButton>
+        </div>
+    </MudContainer>
+</div>

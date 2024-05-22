@@ -1,0 +1,41 @@
+﻿@page "/admin/announcements"
+@using Mediaful.Data.Models;
+@using Mediaful.Data.Services;
+@using Microsoft.Extensions.Localization;
+@using Blazored.FluentValidation
+@inject IAuthService AuthService
+@inject IDatabaseService DatabaseService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>Announcements - Mediaful</PageTitle>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <h1>Announcements</h1>
+
+        <MudForm @ref="form" Class="mt-6" Model="announcement" Validation="@validator.ValidateValue">
+            <MudTextField Counter="512" MaxLength="512" T="string" Label="Announcement" Variant="Variant.Outlined" For="@(() => announcement.Comment)" @bind-Text="announcement.Comment" Lines="3" />
+            <MudButton id="submit" Class="mt-6" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await Submit())">Send</MudButton>
+        </MudForm>
+
+        <MudTable Class="mt-12" Breakpoint="Breakpoint.Sm" Items="announcements" Hover="true" SortLabel="Sort By">
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<Notification, object>(x=>x.NotificationId)">Notification ID</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<Notification, object>(x=>x.Comment)">Announcement</MudTableSortLabel></MudTh>
+                <MudTh>Action</MudTh>
+            </HeaderContent>
+            <RowTemplate Context="rowContext">
+                <MudTd DataLabel="Notification ID">@rowContext.NotificationId</MudTd>
+                <MudTd DataLabel="Announcement">@rowContext.Comment</MudTd>
+                <MudTd DataLabel="Action"><MudIconButton id="@($"delete-{rowContext.NotificationId}")" Title="Delete" OnClick="(() => Delete(rowContext.NotificationId))" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" /></MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new int[]{10, 50, 100}" />
+            </PagerContent>
+        </MudTable>
+    </Authorized>
+    <NotAuthorized>
+        <Error404 />
+    </NotAuthorized>
+</AuthorizeView>

@@ -1,0 +1,113 @@
+﻿@using Mediaful.Shared.Enum;
+@using Microsoft.Extensions.Localization;
+
+<MudChip Disabled="@Disabled" Default="@Default" Value="@Value" Icon="@iconType" Color="@tagColor">
+    <span>@tagContent</span>
+</MudChip>
+
+@code {
+    /// <summary>
+    /// Tag type.
+    /// </summary>
+    [Parameter]
+    public TagTypeEnum Type { get; set; }
+
+    /// <summary>
+    /// Value of the tag.
+    /// </summary>
+    [Parameter]
+    public int Value { get; set; } = 0;
+
+    /// <summary>
+    /// Sets if the Chip is default or not.
+    /// </summary>
+    [Parameter]
+    public bool Default { get; set; } = false;
+
+    /// <summary>
+    /// Sets if the Chip is disabled or not.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    /// <summary>
+    /// Color of the Chip.
+    /// </summary>
+    private Color tagColor = Color.Warning;
+
+    /// <summary>
+    /// Content within the tag.
+    /// </summary>
+    private string tagContent = string.Empty;
+
+    /// <summary>
+    /// Icon for the Chip.
+    /// </summary>
+    private string iconType = string.Empty;
+
+    /// <summary>
+    /// Initializes the backend of the page.
+    /// </summary>
+    /// <returns>Task.</returns>
+    protected override void OnInitialized()
+    {
+        // Set Chip values for WatchStatus.
+        if (Type == TagTypeEnum.WatchStatus)
+        {
+            if (Value == (int)StatusEnum.Watching)
+            {
+                tagColor = Color.Primary;
+                tagContent = "Watching";
+                iconType = Icons.Material.Outlined.LiveTv;
+            }
+            else if (Value == (int)StatusEnum.Watched)
+            {
+                tagColor = Color.Info;
+                tagContent = "Watched";
+                iconType = Icons.Material.Outlined.MovieFilter;
+            }
+            else if (Value == (int)StatusEnum.Watchlist)
+            {
+                tagContent = "Watchlist";
+                iconType = Icons.Material.Outlined.TvOff;
+            }
+        }
+
+        // Set Chip values for Rating.
+        else if (Type == TagTypeEnum.Rating)
+        {
+            if (Value == (int)RatingEnum.Liked)
+            {
+                tagColor = Color.Success;
+                tagContent = "Liked";
+                iconType = Icons.Material.Outlined.ThumbUp;
+            }
+            else if (Value == (int)RatingEnum.Disliked)
+            {
+                tagColor = Color.Error ;
+                tagContent = "Disliked";
+                iconType = Icons.Material.Outlined.ThumbDown;
+            }
+        }
+
+        // Set Chip values for TimesWatched.
+        else if (Type == TagTypeEnum.TimesWatched)
+        {
+            tagColor = Color.Default;
+            if (Value >= 4)
+            {
+                tagColor = Color.Dark;
+                iconType = Icons.Material.Outlined.StarOutline;
+            }
+            tagContent = Value.ToString();
+        }
+
+        // Set Chip values for Favorite.
+        else if (Type == TagTypeEnum.Favorite)
+        {
+            tagColor = Color.Secondary;
+            tagContent = "Favorite";
+            iconType = Icons.Material.Outlined.FavoriteBorder;
+        }
+    }
+}

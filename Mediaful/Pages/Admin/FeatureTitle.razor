@@ -1,0 +1,77 @@
+﻿@page "/admin/features"
+@using Blazored.FluentValidation;
+@using Mediaful.Data.Services;
+@using Microsoft.Extensions.Localization;
+@using Mediaful.Data.Models;
+@inject IDatabaseService DatabaseService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IWebHostEnvironment Environment
+
+<PageTitle>Feature Title - Mediaful</PageTitle>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        @if (isLoading)
+        {
+            <!-- Silently handle asynchronous loading. -->
+        }
+        else
+        {
+            <div>
+                <h1>Feature Title</h1>
+                <MudForm @ref="form" Class="mt-6" Model="InputFields" Validation="@validator.ValidateValue">
+                    <MudTextField T="string" Label="Description" Variant="Variant.Outlined" For="@(() => InputFields.Description)" @bind-Text="InputFields.Description" Lines="3" />
+                    <MudFileUpload For="@(() => InputFields.Image)" @bind-Files="InputFields.Image" T="IBrowserFile" OnFilesChanged="LoadFile" Hidden="false"
+                               InputClass="pointer absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+                                @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+
+                        <ButtonTemplate Context="buttonContext">
+                            <MudPaper Height="300px" Outlined="true" Class="@DragClass">
+                                <MudText Typo="Typo.h6">Click or drag an image to upload</MudText>
+                                @if (InputFields.Image != null)
+                                {
+                                    <MudChip Color="Color.Default">
+                                        @InputFields.Image.Name
+                                    </MudChip>
+                                }
+                            </MudPaper>
+                        </ButtonTemplate>
+                    </MudFileUpload>
+                    <div class="mt-6">
+                        <MudButton OnClick="UnloadFile" Disabled="@(InputFields.Image == null)" Color="Color.Error" Variant="Variant.Filled">Clear</MudButton>
+                        <MudButton id="submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await Submit())">Save</MudButton>
+                    </div>
+                </MudForm>
+            </div>
+            <div>
+                <MudTable Class="mt-12" Breakpoint="Breakpoint.Sm" Items="features" Hover="true" SortLabel="Sort By">
+                    <HeaderContent>
+                        <MudTh><MudTableSortLabel SortBy="new Func<FeaturedTitle, object>(x=>x.FeatureId)">ID</MudTableSortLabel></MudTh>
+                        <MudTh>Image</MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<FeaturedTitle, object>(x=>x.Description)">Description</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<FeaturedTitle, object>(x=>x.ImgPath)">Path</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<FeaturedTitle, object>(x=>x.Expiry)">Expiry</MudTableSortLabel></MudTh>
+                        <MudTh>Action</MudTh>
+                    </HeaderContent>
+                    <RowTemplate Context="rowContext">
+                        <MudTd DataLabel="Feature ID">@rowContext.FeatureId</MudTd>
+                        <MudTd DataLabel="Image"><MudImage Fluid="true" Src="@rowContext.ImgPath"></MudImage></MudTd>
+                        <MudTd DataLabel="Description">@rowContext.Description</MudTd>
+                        <MudTd DataLabel="Path">@rowContext.ImgPath</MudTd>
+                        <MudTd DataLabel="Expiry">@rowContext.Expiry</MudTd>
+                        <MudTd DataLabel="Action">
+                            <MudIconButton Title="Delete" OnClick="(() => Delete(rowContext.FeatureId))" Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" />
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[]{10, 50, 100}" />
+                    </PagerContent>
+                </MudTable>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <Error404 />
+    </NotAuthorized>
+</AuthorizeView>

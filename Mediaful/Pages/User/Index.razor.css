@@ -1,0 +1,25 @@
+﻿::deep .notif-comment {
+    background-color: #474751 !important;
+}
+::deep .notif-comment-icon {
+    position: relative !important;
+    bottom: -4px !important;
+}
+.notif-comment-message {
+    position: relative;
+    bottom: 4px;
+}
+.notif-tags, .no-notif {
+    text-align: center;
+}
+
+.no-notif {
+    width: 100%;
+}
+.landing-container {
+    padding: 32px;
+    border-radius: 4px;
+    margin-top: 16px;
+    width: 100%;
+    background: #27272f;
+}

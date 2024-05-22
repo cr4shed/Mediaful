@@ -1,0 +1,18 @@
+﻿.icon-wrapper {
+    margin-top: 4px;
+    margin: 16px;
+    display: flex;
+    font-size: 20px;
+}
+    .icon-wrapper.sidebar-icon-collaped {
+        justify-content: center;
+    }
+    .icon-wrapper.sidebar-icon-expanded {
+        justify-content: right;
+    }
+    .icon-wrapper .icon {
+        cursor: pointer;
+    }
+.asdasdasd {
+    text-align: center;
+}
