@@ -10,7 +10,7 @@ Mediaful is a Blazor Server social media application written in C# that was crea
 ## Usage Instructions
 1.	Navigate to the Register page.
 2.	Enter credentials into the input fields and click the “Register” button.
-3.	A verification email will be sent from `Mail:NoReplyAddress` to the entered email address, it is required to click the link in the email body to verify the account. This process may take several minutes and the email could be filtered to your “Junk” folder by mistake. If the `EmailSender` is disabled in `Program.cs`, instead click "Click here to confirm your account" to manually confirm you account.
+3.	A verification email will be sent from `Mail:NoReplyAddress` to the entered email address, it is required to click the link in the email body to verify the account. This process may take several minutes and the email could be filtered to your “Junk” folder by mistake. If the `EmailSender` is disabled in `Program.cs`, instead click "Click here to confirm your account" to manually confirm your account.
 4.	After verifying the account, navigate to the Login page and enter the credentials used to register.
 
 ## Screenshots
